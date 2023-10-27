@@ -12,10 +12,14 @@ import org.springframework.stereotype.Component;
 public class EmailConsumer {
     @Autowired
     private SendEmail sendEmail;
+
+    @Autowired
+    private SaveEmail saveEmail;
     @RabbitListener(queues = "${broker.queue.email.name}")
     public void listenEmailQueue(@Payload EmailDto emailDto) {
         Email email = new Email();
         BeanUtils.copyProperties(emailDto, email);
         Email sendingStatus = sendEmail.perform(email);
+        saveEmail.perform(sendingStatus);
     }
 }
